@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.14/dist/vue.js"></script>
+    <title>Styling</title>
+    <style>
+    .square {
+        width: 100px;
+        height: 100px;
+        background-color: grey;
+        display: inparagraph-block;
+        margin: 10px;
+    }
+    .red {
+        background-color: red;
+    }
+    .blue {
+        background-color: blue;
+    }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <span v-if="show">paragraph 1</span>
+        <span v-else>paragraph 2</span>
+        <span v-show="show">paragraph 3</span>
+        <button @click="show = !show">Switch</button>        
+        <ul>
+            <li v-for="(item, index) in list">[{{ index }}]{{ item.name }}</li>
+        </ul>
+
+        <ul>
+            <li v-for="(obj, index) in list">
+                <span v-for="(value, key, index) in obj"> ({{ index }}) {{ key }}: {{ value }}</span>
+            </li>
+        </ul>
+        <span v-for="n in 10">{{ n }} </span>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                show: true,
+                list: [
+                    {name: 'Dixie', age: 5},
+                    {name: 'James', age: 7}
+                ]
+            }
+        });
+
+    </script>
+</body>
+</html>

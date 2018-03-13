@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.14/dist/vue.js"></script>
+    <title>Styling</title>
+    <style>
+    .square {
+        width: 100px;
+        height: 100px;
+        background-color: grey;
+        display: inline-block;
+        margin: 10px;
+    }
+    .red {
+        background-color: red;
+    }
+    .blue {
+        background-color: blue;
+    }
+    </style>
+</head>
+<body>
+    <div id="classes">
+        <div class="square" @click="isRed = !isRed" :class="{red: isRed}"></div>
+        <div class="square" @click="isBlue = !isBlue" :class="myColors"></div>
+        <div class="square":class="color"></div>
+        <input type="text" v-model="color">
+    </div>
+    <div id="styles">
+        <div class="square" :style="{backgroundColor: color }"></div>
+        <div class="square" :style="myStyle"></div>
+        <div class="square" :style="[myStyle,{height: width + 'px'}]"></div>
+        <input type="text" v-model="color">
+        <input type="text" v-model="width">
+    </div>
+    <script>
+        new Vue({
+            el: '#classes',
+            data: {
+                isRed: false,
+                isBlue: false,
+                color: 'grey'
+            },
+            computed: {
+                myColors: function() {
+                    return {
+                        red: this.isRed,
+                        blue: this.isBlue
+                    }
+                }
+            }
+        });
+
+        new Vue({
+            el: '#styles',
+            data: {
+                color:'grey',
+                width: 100
+            },
+            computed: {
+                myStyle: function() {
+                    return {
+                        backgroundColor: this.color,
+                        width: this.width + 'px'                       
+                    }
+
+                }
+            }
+        })
+    </script>
+</body>
+</html>
