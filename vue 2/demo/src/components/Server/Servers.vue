@@ -10,7 +10,11 @@
 </template>
 
 <script>
+import ServerDetails from './components/Server/ServerDetails.vue';
 
+export default {
+    ''
+}
 </script>
 
 <style scoped>

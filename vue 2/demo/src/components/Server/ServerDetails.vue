@@ -1,11 +1,13 @@
 <template>
     <div>
-        <p>Server Details are currently not updated</p>
+        <p>Username: {{ name }} </p>
     </div>
 </template>
 
 <script>
-
+    export default {
+        props: [ 'name']
+    }
 </script>
 
 <style scoped> 

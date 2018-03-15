@@ -168,9 +168,313 @@ destroy: remove all the connections(js logic) with the element
 ## Virtual DOM
 The virtual DOM compares the new template with itself. If there's some real change to the DOM to be taken of, then it rerenders the DOM.
 
+Module 3: Component Basics ============================================
+
 ## Vue-cli
 Vue-cli mainly sets up a template for your project.
 
+## Why components?
+An instance only applies to the first selected element on the page.
+A component is a reusable piece of instance.
+
+<html>
+    <div id="app">
+        <my-cmp></my-cmp>
+        <my-cmp></my-cmp>
+        <my-cmp></my-cmp>
+    </div>
+<html>
+
+<script>
+    Vue.component('my-cmp', {         //selector, tag name
+        data: function(){             //in a component, data must be a function 
+            return { some object }      //while in a root Vue instance it can be an object
+        },                              //This is because vue don't want all components to share one data object => see more in the example
+        template: 'my template'
+    });
+
+    new Vue({
+        el:'#app'
+    });
+
+</script>
+
+For components, if you set data as an object, all components' data point to the same place in the memory, so they share the data source. We don't want that behavior. Each piece of data should refer to the corresponding component. That's why vue requires data property be a function in components.(Like methods!)
 
 
+## Registering components globally and locally
 
+Global components: use 'Vue.component' method
+
+    Vue.component('tag-name',{...});
+
+    new Vue({
+        el:'#app'
+    });
+
+Local components: use 'components' property in the vue instance(the component will be registerd only on this instance)
+
+    var variable = {...};
+
+    new Vue({
+        el:'#app',
+        components: {
+            'selector': variable
+        }
+    });
+
+## Single file component
+//exports a component
+//!IMPORTANT: component template should be wrapped up as one root element, not sibling elements
+
+    <template></template>
+    <script>
+        export default {
+            //like a component
+        }
+    </script>
+    <style></style>
+
+## Root App.vue
+//imports all the components, sets the main template and exports itself as a single component
+
+    import Component from '/directory';    //import a component from another file
+    Vue.component('my-cmp', Component);    //register it globally
+
+
+## main.js
+//imports Vue and root App (and/or other components), and renders them
+
+    import Vue from 'vue'
+    import App from './App.vue'
+
+    new Vue({
+    el: '#app',
+    render: h => h(App)
+    })
+
+## Vue project folder structure
+
+For small to medium sized project, you can put all the components under '/components'
+For a larger project, it's better to categorize things by feature: Header&Footer, Servers, etc.
+
+Selector names: Javascript style or DOM style?
+When naming the components, for a single file structure it's fine to use camelcase selectors, because javascript is case-sensitive and no DOM interaction is involved. (DOM is not case-sensitive)
+Actually Vue.js allows access to the same selector with a dash in between.
+
+    components: { appHeader: Header }
+    <app-header></app-header> // it works!
+
+But normally we use the dashed version that resembles DOM tags.
+In ES6, if the key and value are the same we can shorten the expression:
+
+    components: { Server: Server } 
+--> components: { Server } 
+
+## scoped
+
+If there's no specified scoped , the style will be applied globally to all the components.
+Use 'scoped' to apply styles within the file.
+
+<style scoped></style>
+
+What does 'scoped' do?
+Shadow DOM: sub-DOMs for each components behind the scenes
+In Vue.js, styles for each components are specified seperately in <head>, and it uses data-v-xxx attribute to emulate this behavior(shadow DOM), so that styles are applied seperately.
+<div data-v-xxxxx></div>  matches   <style> div[data-v-xxxxx] {...} </style>    
+
+# Module 4 Communication =========================================
+
+## Using props tp pass data from parent to child
+in the child component: 
+
+<p>my parent's name: {{ name }}</p>
+<script>
+    export default {
+        props: [ 'name']   //refers to a name property specified in the parent component
+    }
+</script>
+
+//props is just like data. You may access name through this.name
+
+in the parent component: 
+
+<child :name="myName"></child>  //v-bind a name property to a child
+
+<script>
+    export default {
+        data: function() {
+            return {
+                myName: 'parent'
+            }
+        }
+    }
+</script>
+
+## Validating props
+
+props: {
+    myProp:String,                 //a single type
+    anotherProp: [String, Array]   //multiple types 
+}
+
+If an invalid prop is passed, you will get a warning(dev env) in the console
+
+props: {
+    myProp: {
+        type: String
+        required: true
+    }
+}
+
+The property must be passed
+
+props: {
+    myProp: {
+        type: String
+        default: 'Opps'
+    }
+}
+
+set a default value if the property isn't passed.
+For primitive types, set literal values
+For complex(reference) types, use a function to return the object
+
+## Customizing an event to pass data back to parent
+!IMPORTANT: 
+When you pass a prop:
+For primitive types, the data itself is copied to the child. The two copies don't interfere.
+For complex(reference) types, a pointer is copied to the child. They share the source.
+When you update a property in the child:
+For primitive types, data in the parent won't change
+For complex(reference) types, data in parent changes
+
+In the child, emit a custom event using $emit:
+this.$emit('eventName', dataToBePassed);
+
+In the parent, listen to that event using v-on:
+<div @eventName="dataToBeUpdated = $event"></div>
+
+//$event refers to dataToBePassed
+
+## Unidirectional Data Flow from Top to Bottom
+
+Child 1  <---x---> Child 2  
+Children cannot communicate with each other directly
+
+Normal flow:
+Parent  --> pass callback as prop      --> Child 1 
+Child 1 --> use callback to pass data  --> Parent
+Parent  --> pass data as prop          --> Child 2 
+
+methods:
+1. use a custom event from the child
+2. pass a function from the parent
+
+## Communication between sibling components
+
+method 1: custom events
+method 2: callback function passed by parent
+method 3: event bus 
+
+
+## Event Bus for communication
+1. create an event bus(an instance) in main.js:
+
+    export const eventBus = new Vue();  //before rendering the main vue instance
+
+2. for child 2, use eventbus.$emit instead of this.$emit
+
+3. for child 1, add a listener when it's created:
+
+    created(){                        ↓whatever name
+        eventBus.$on('eventName', (updatedData) => {
+            data = updatedData;
+        });
+    }
+
+## Centralizing code in an event bus
+
+You may move some methods inside the event bus:
+
+    export const eventBus = new Vue({
+        methods: {
+            changeData(data) {
+                this.$emit('dataChanged', changedData);
+            }
+        }
+    });
+
+Or other things you want to be accessible throughout the app...
+Then simplify the code in components:
+
+    change() {
+        data = newData;
+        eventBus.$emit('dataChanged', data);
+    }
+--> change() {
+        data = newData;
+        eventBus.changeData(data);
+    }
+
+
+# Module 5 More about components ==============
+
+## Distributing contents with slots
+
+<my-cmp>
+    <div>My Content</div>
+</my-cmp>
+
+<template>
+    <slot></slot>
+</template>
+
+1. <slot> takes in html content wrapped in the component tag in the parent template
+
+styles are set in the child component, but everything else are set in the parent component
+
+
+2. You may assign the content to different slots by using name attribute:
+
+parent:
+<my-cmp>
+    <h1 slot="title">Title: {{ Title }}</h1>
+    <p slot="content">Content</p>
+</my-cmp>
+
+child:
+<template>
+    <slot name="title"></slot>
+    <slot name="content"></slot>
+</template>
+
+3. You may also name one slot, and leave all the other content in an default slot:
+
+<my-cmp>
+    <h1 slot="title">Title: {{ Title }}</h1>
+    <p>Content</p>
+    <p>Content</p>
+    <p>Content</p>
+    <p>Content</p>
+</my-cmp>
+
+child:
+<template>
+    <slot name="title"></slot>
+    <slot></slot>               //all <p>s go here...
+</template>
+
+4. Set slot defaults between <slot> tags...
+
+<slot>Default</slot>
+
+## Dynamic components
+
+<component :is="ComponentID"></comonent>
+
+ComponentID: 'my-cmp'
+
+When you switch between components, they are destroyed and recreated
+
+To override this, use keyword <keep-alive> to wrap the component

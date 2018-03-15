@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.14/dist/vue.js"></script>
+    <title>Vue components</title>
+
+</head>
+<body>
+    <div id="app">
+        <my-cmp></my-cmp>
+        <my-cmp></my-cmp>
+        <my-cmp></my-cmp>
+        <hr>
+        <another-cmp></another-cmp>
+        <another-cmp></another-cmp>
+        <another-cmp></another-cmp>
+        <hr>
+        <p>For components, if you set data as an object, all components' data point to the same place in the memory, so they share the data source. We don't want that behavior. Each piece of data should refer to the corresponding component. That's why vue requires data property be a function in components.(Like methods!)</p>
+    </div>
+
+    <script>
+        Vue.component('my-cmp', {            //selector, tag name
+            data: function(){                //in a component, data must be a function 
+                return { word: 'emmmm' }      //while in a root Vue instance it can be an object
+            },
+            template: '<p>It says: {{ word }} <button @click="change">Change Status</button></p>',
+            methods: {
+                change: function(){
+                    this.word = 'hmmmm';
+                }
+            }
+        });
+
+        var mydata = { word: 'Hahaha'};
+        Vue.component('another-cmp', {            
+            data: function(){                
+                return mydata;      
+            },
+            template: '<p>It says: {{ word }} <button @click="change">Change Status</button></p>',
+            methods: {
+                change: function(){
+                    this.word = 'Hohoho';
+                }
+            }
+        });
+
+        new Vue({
+            el:'#app'
+        });
+
+    </script>
+</body>
+</html>
