@@ -1,3 +1,14 @@
+Comment:
+Ctrl + K, Ctrl + C
+Ctrl + K, Ctrl + U
+Replace:
+Ctrl + F2
+Multiple positions input:
+Alt
+Multiple lines input:
+Alt + Shift
+
+
 ## Vue instance
 new Vue {
     el: '//element selector: the same as css',
@@ -478,3 +489,286 @@ ComponentID: 'my-cmp'
 When you switch between components, they are destroyed and recreated
 
 To override this, use keyword <keep-alive> to wrap the component
+
+# Module 6 Forms ============
+## Using v-model
+v-model default: listens to every key stoke
+v-model.lazy: updates when it loses focus
+v-model.trim: cuts off all white space
+v-model.number: tranforms into a number 
+
+Use v-model to set default value for textarea. (not between the tags)
+v-model keeps multi-line strings. Output with line breaks: use style "white-space: pre"
+
+nest checkboxes, radio buttons in label tags.
+For multiple checkboxes, bind the same v-model. Vue will marge all values into an array.
+For radio buttons, bind the same v-model. Vue will group them.
+For dropdowns, bind v-model to <select> to set default, or use :selected=" xxx == 'dafault'" in <option>
+
+What v-model does:
+:value="xxx" @input="xxx = $event.target.value"
+
+To build our own component with v-model, the component needs a value property and emits an input event.
+
+To prevent the default submission to the server, use .prevent modifier.
+
+# Module 6 Directives ==============
+## Built-in Directives
+## Hooks
+ - bind(el, binding, vnode) - once directive is attached
+ - inserted(el, binding, vnode) - inseted in parent node
+ - update(el, binding, vnode, oldVnode) - once component is updated(without children)
+ - componentUpdated(el, binding, vnode, oldVnode) - once component is updated(with children)
+ - unbind(el, binding, vnode) - once directive is rendered
+## Custom Directives
+
+1. Global directives
+
+<p v-name:binding.arg.modifier1.modifier2="binding.value"></p>
+
+Vue.directive('name', {
+    bind(el, binding, vnode) {
+        -- binding.value
+        -- binding.arg
+        -- binding.modifiers['modifier1']
+    }
+})
+
+2. Local directives
+
+add directives property:
+
+directives: {
+    'name': {
+        bind(el, binding, vnode) {
+            ...
+        }
+    }
+}
+
+# Module 7 Filters & Mixins ==============
+
+use filters to transform data.
+
+1. Global registration
+Vue.filter('filterName',);
+
+2. Local registration
+
+filters: {
+    filterName(value) {
+        return newValue;
+    }
+}
+
+<p>{{ text | filterName}}</p>
+
+use chained filters: | filter1 | filter2 | filter3...
+
+filters are only used for formatting(?) values. 
+For more complex tranformations(e.g. filter a list), create a filter with computed properties. This won't cause unnecessary calculations.
+
+
+Mixins: for data across applications
+1. Local Mixins
+create a mixin.js file, export an obj
+import it in the component and register
+
+mixins:[]
+
+the mixin will be merged into the exisitng instance
+
+the mixin life hook is executed first, and thereafter the instance life hook.
+
+2. Global Mixins(registered for all instances)
+
+Vue.mixin({
+    created() {
+        
+    }
+})
+
+global mixins are called first, then local mixins, then apps
+
+each instance get a fresh copy of the mixin. the mixin is not shared
+
+# Module 8 Animations ==============
+
+Transitions CSS classes:(single elment)
+*-enter
+*-enter-active
+*-leave
+*-leave-active
+
+Default: v-enter etc. if no name is supplied
+one element in one <transition> tag
+
+<transition name="idenitfier" type="transition"/"animation" > 
+
+type - which one dictates the length of animation
+appear - animation during the initial attachment
+
+specify a different name for each animation:
+      enter-class=""
+      enter-active-class=""
+      leave-class=""
+      leave-active-class=""
+
+transition properties can be bind with dynamic variables:
+<transition :name="idenitfier" :type="my-type" > 
+multiple elements:
+    <transition mode="out-in"/"in-out">
+      <p v-if="show" key="a">AAA</P>    
+      <p v-if="!show" key="b">BBB</P>    
+    </transition>
+
+JS Animation:
+
+    @before-enter="beforeEnter"
+    @enter="enter"
+    @after-enter="afterEnter"
+    @enter-cancelled="enterCancelled"
+
+    @before-leave="beforeLeave"
+    @leave="leave"
+    @after-leave="afterLeave"
+    @leave-cancelled="leaveCancelled"
+
+  methods: {
+    beforeEnter(el) {
+      console.log('before enter');
+    },
+    enter(el,done) {
+      console.log('enter');
+      done();
+    },
+    afterEnter(el) {
+      console.log('after enter');
+    },
+    enterCancelled(el) {
+      console.log('enter cancelled');
+    }
+  }
+
+exclude css from animation: :css="false"
+
+dynamic components:
+<component :is="variable"></component>
+
+Group transitions
+
+<transition> is not rendered to the DOM
+<transition-group> dese render a new HTML tag. By default, that will be a <span>, you can overwrite this by setting <transition-group tag="tags">
+
+items have to be keyed
+
+add an item and move the others simultaneously: 
+.xxx-move {
+    transition: tranform 1s;
+}
+
+remove an item and move the others simultaneously:(move it out of the document flow) 
+.xxx-leave {
+    position: absolute;
+}
+
+
+a flip animation:
+
+.flip-enter {
+    /*transform:rotateY(0deg);*/
+}
+
+.flip-enter-active {
+    animation: flip-in 0.5s ease-out forwards;
+}
+
+.flip-leave {
+    /*transform:rotateY(0deg);*/
+}
+
+.flip-leave-active {
+    animation: flip-out 0.5s ease-out forwards;
+}
+
+@keyframes flip-in {
+    from {
+        transform: rotateY(0deg);
+    }
+    to {
+        transform: rotateY(90deg);
+    }
+}
+
+@keyframes flip-out {
+    from {
+        transform: rotateY(90deg);
+    }
+    to {
+        transform: rotateY(0deg);
+    }
+}
+
+# Module 9 HTTP ==============
+
+use intercepters to modify request/response
+
+# Module 10 Routing ==============
+
+export const routes = [
+    { path: '', component: Home },
+    { path: '/path1', component: Component },
+    { path: '/path2', component: Component }
+]
+
+import routes in main.js
+
+in .vue file, mark the place for route component in <router-view/>
+
+Domain/#/route 
+
+the part after the hash tag will not be sent to the server and will be handled by the app
+
+if you don't want the hash tag, the server needs to be configured to always return the index page. 
+
+const router = new Router ({
+    routes,
+    mode: 'history'  // no hash tag style html5 history
+})
+
+## active links
+
+<router-link to="/" tag="li" acitve-class="active" exact><a>Home</a></router-link>
+
+- exact: route matches exact route, otherwise the initial
+
+## navigate from code
+this.$router.push({path: '/'});
+
+## route parameters
+
+{ path: '/user/:id', component: Component}
+
+data() {
+    id: this.$route.params.id   // $route is the active route
+}
+
+if the component is not reloaded, just the path changed, the params won't update. you have to watch them
+
+    watch: {
+        '$route'(to, from) {
+            this.id = to.params.id;
+        }
+
+## sub routes, child routes, nested routes
+
+in the routes:
+    {
+      path: '/user',
+      component: User,
+      children: [
+        {path: '', component: UserList},
+        {path: ':id', component: UserDetail},
+        {path: ':id/edit', component: UserEdit}
+      ]
+    }
