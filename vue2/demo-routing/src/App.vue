@@ -1,7 +1,8 @@
 <template>
   <div id="app">
+    <router-view name="header-top"/>    
     <h1>Routing</h1>
-    <app-header></app-header>
+    <router-view name="header"/>
     <router-view/>
     <button @click="getLatest">aaa</button>
     <ul>

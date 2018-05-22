@@ -1,8 +1,6 @@
 <template>
     <div>
         <h1>User Page</h1>
-        <h2>MY ID: {{ id }}</h2>
-
         <router-view></router-view>
         <button @click="navigateToHome">Go to Home</button>    
     </div>

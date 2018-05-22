@@ -1,27 +1,34 @@
 <template>
-    <ul>
-        <li>User 1</li>
-        <li>User 2</li>
-        <li>User 3</li>
-
-    </ul>
+    <div>
+        <button @click="confirmed = true">OK!</button>
+        <p>confirmed:{{ confirmed }}</p>
+    </div>
 </template>
 
+<script>
+    export default {
+        data() {
+            return {
+                confirmed: false
+            }
+        },
+        beforeRouteLeave(to, from, next) {
+            // don't use arrow function or this is not defined
+            if(this.confirmed) {
+                next();
+            } else {
+                if(confirm('Are you sure?')) {
+                    next();
+                } else {
+                    next(false);
+                }
+            }
+        }
+    }
+</script>
+
 <style scoped>
-    li {
-        list-style: none;
-        display: inline;
-        
-    }
-
-    a {
-        text-decoration: none;
-        color: black;
-    }
-
-    ul {
-        background-color: lightsalmon;
-        margin: 0;
-        padding: 0;
+    div {
+        background-color: aquamarine;
     }
 </style>

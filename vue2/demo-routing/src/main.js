@@ -10,6 +10,11 @@ Vue.use(VueAxios, axios)
 
 Vue.config.productionTip = false
 
+router.beforeEach((to, from, next) => {
+ console.log('global before each');
+ next();
+});
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

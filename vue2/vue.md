@@ -772,3 +772,324 @@ in the routes:
         {path: ':id/edit', component: UserEdit}
       ]
     }
+
+## query parameters
+
+set query params:
+:to { query: {a: 100, b: 'Ah'}}
+
+extract query params:
+$route.query.a
+
+## set name for routes
+
+in the routes:
+    {
+        path: '/user/:id',
+        component: User,
+        name: 'userDetail'
+    }
+
+usage: Obj syntax
+
+:to="{name: 'userDetail', params:{ id: $route.params.id}}"
+this.$router.push({ id: $route.params.id})
+
+## set names for multiple router views
+
+Assign names for router-views:
+
+<router-view name="aaa"></router-view>
+<router-view></router-view>
+<router-view name="bbb"></router-view>
+<router-view name="ccc"></router-view>
+
+the one without the name will hold all the unmatched routes
+
+Assign names for routes:
+
+    {
+        path: '/',
+        name: 'home',
+        components: {
+            default: Home,
+            'aaa': Aaa
+        }
+    }
+
+named rputer views helps reserve certain spots in the app, for different layouts in different routes
+
+## redirecting
+
+in the routes:
+{ path:'/aaa', redirect: {name: 'home'}}
+
+redirect any routes that don't exist: *
+
+{ path:'*', redirect: {name: 'home'}}
+
+## route transitions
+
+wrap a router-view in transition tag
+
+## hash fragment and scroll behavior
+
+{hash: '#data'}
+
+
+const router = new Router ({
+    routes,
+    mode: 'history'  // no hash tag style html5 history
+    scrollBehavior(eo, from, savedPosition) {
+        if(savedPosition) {   //user pushed back
+        return savedPosition
+        }
+        if(to.hash) {
+            return { selector: to.hash}     //#data
+        } 
+        return {x: 0, y: 100};  
+    }
+})
+
+## beforeEnter Guard
+
+for all routes:
+
+router.beforeEach((to, from, next) => {     
+    console.log
+    next();
+})
+
+this will execute for each route each time. so put only generic checks here
+next() - continue
+next(false) / no next() - abort
+next({route obj})  - redirect
+
+for a certain route: inside route setup
+
+{beforeEnter: (to, form, next) => {
+    console.log
+    next();
+}}
+
+for a component:
+
+beforeRouteEnter(to, from, next) {
+    next(vm => {
+        vm.link = aaa;    //before the component is loaded, you need a callback to access its data
+    })
+}
+
+beforeRouteLeave(to, from, next) {
+            // here the component is already loaded, so you can access its data
+            // but don't use arrow function or 'this' is not defined
+            // this is useful to prevent the user form leaving with something unsaved
+        }
+
+
+## lazy loading with webpack
+
+put some resources in another bundle, and load them when needed
+
+const User = resolve => {
+    require.ensure(['./components/user/User.vue'], () => {
+        resolve(require('./components/user/User.vue'));
+    });
+};
+
+# Module 11 VUEX ==============
+
+event bus: ok for medium sized apps, but one bus will quickly get crowded, and it's hard to track changes
+
+VUEX: using a central state, a store holds the state
+
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+Vue.use(Vuex);
+
+export const store = new Vuex.Store({
+    state: {
+        counter: 0
+    }
+})
+
+
+import { store } from './store/store'
+
+new Vue({
+  el: '#app',
+  store,
+  render: h => h(App)
+})
+
+access data:
+
+this.$store.state.counter
+
+## getters
+
+Store --return--> Getters --access--> Components
+
+getter does the complicated calculation for apps, to reduce code duplication in apps 
+
+    state: {
+        counter: 0
+    },
+    getters: {
+        doubleCounter: state => {
+            return state.counter * 2;
+        }
+    }
+
+access getters:
+
+    return this.$store.getters.doubleCounter;
+
+## map getters
+
+import { mapGetters } from 'vuex'
+
+computed: mapGetters([
+    'doubleCounter',
+    'stringCounter'
+])
+
+or you can pass an obj and map the getters to different names:
+
+mapGetters({
+    dbc: 'doubleCounter',
+    sc: 'stringCounter'
+})
+
+mapGetter is an obj, to add other computed properties, use ...(spread dots)
+
+pulls out all the properties and list them with other properties.
+
+...mapGetters([a,b,c]),
+otherComputed()
+
+to support this, a babel package is necessary:
+
+install --save-dev babel-preset-stage-2 
+
+inside .babelrc:
+
+"presets": [
+    ["stage-2"]
+]
+
+
+## mutations(setters)
+
+Components --commit--> Mutations --change state--> Store
+
+    mutations: {
+        increment: state => {
+            state.counter++;
+        },
+        decrement: state => {
+            state.counter--;
+        }
+    }
+
+to commit:
+    increment() {
+        //this.$emit('updated', 1);
+        this.$store.commit('increment');  //name as a string
+    },
+
+## map mutations
+
+import { mapMutations } from 'vuex'
+
+...mapMutations([
+    'increment',
+    'decrement'
+])
+
+
+!mutations must run synchronously
+
+## actions - async tasks
+
+component --dispatch--> actions --commit(after the task is done)--> mutations
+
+    actions: {
+        increment: context => {
+            context.commit('increment');
+        }
+    }
+
+context has commit method, and access to getters and so on.
+if you only want the commit method, use es6 syntax:
+
+    actions: {
+        increment: ({ commit }) => {      //only pulls out commit from context
+            commit('increment');
+        }
+    }
+
+consider creating only actions(if there exists async tasks) or only mutations(if there are only sync tasks), not both, to make the pattern clearer.
+
+
+mutations and actions provides a second arg 
+or more in an obj {a:aaa, b: bbb}
+
+    mutations: {
+        increment: (state, step) => {
+            state.counter += step;
+        },
+
+    }
+    actions: {
+        asnycIncrement: ({ commit }, args) => {
+            setTimeout(() => {
+                context.commit('increment', args.step);
+            }, args.duration);
+
+    <button @click="increment({step: 10, duration: 1000})">Increment 10</button>
+
+
+## use v-model with Vuex
+
+    computed: {
+      value: {
+        get() {
+          return this.$store.getters.value;          
+        },
+        set(value) {
+          this.$store.dispatch('updateValue', value);
+        }
+      }
+    }
+
+    computed set() is rarely needed
+
+## modulizing the state management
+
+modules folder
+
+1. for a group:
+counter.js
+export state, getters, mutations, actions
+import counter.js in store.js and add it in modules
+    modules: {
+        counter
+    }
+
+2. by categories:
+
+export state, getters, mutations, actions as single files, and import them with
+
+import * as actions from ...
+
+## using name spaces to avoid naming problems
+
+type.js: set name for all getters, mutations and actions
+
+export const DOUBLE_COUNTER = 'counter/DOUBLE_COUNTER';
+
+to use it:
+import * as types from './types'
+
