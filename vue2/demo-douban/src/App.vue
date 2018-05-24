@@ -2,14 +2,8 @@
   <div id="app">
     <app-header></app-header>
     <transition name="flip">
-      <app-movie-detail 
-        v-show="isShown" 
-        @on-close="isShown = false" 
-        :isShown="isShown" 
-        :movieDetail="movieDetail">
-        </app-movie-detail>
+      <app-movie-detail v-show="isShown" ></app-movie-detail>
     </transition>
-    <button @click="isShown = true">open</button>
     <router-view/>
   </div>
 </template>
@@ -22,15 +16,14 @@ import MovieDetail from './components/MovieDetail.vue'
 
 export default {
   name: 'App',
-  data() {
-    return {
-      isShown: false,
-      movieDetail: '111'
-    }
-  },
   components: {
     'app-header': Header,
     'app-movie-detail': MovieDetail
+  },
+  computed: {
+    isShown() {
+      return this.$store.state.detailIsShown
+    }
   }
 }
 </script>
