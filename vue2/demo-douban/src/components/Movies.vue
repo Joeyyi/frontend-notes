@@ -9,37 +9,37 @@
   </div>
 </template>
 
-<script>
-import jsonp from 'jsonp'
-import MovieList from './MovieList.vue'
-export default {
-  data() {
-    return {
-      list: {}
+  <script>
+  import jsonp from 'jsonp'
+  import MovieList from './MovieList.vue'
+  export default {
+    data() {
+      return {
+        list: {}
+      }
+    },
+    components: {
+      'app-movie-list': MovieList
+    },
+    methods: {
+      getMovieList(title) {
+        var url = 'https://api.douban.com/v2/movie/' + title;
+        var param = 'handleResponse';
+        jsonp(url, param, (err, res) => {
+          if(!err) {
+            this.list = res;
+            console.log(res);
+          } else {
+            console.log(err);
+          }
+        });
+      }
+    },
+    mounted() {
+      this.getMovieList('in_theaters');
     }
-  },
-  components: {
-    'app-movie-list': MovieList
-  },
-  methods: {
-    getMovieList(title) {
-      var url = 'https://api.douban.com/v2/movie/' + title;
-      var param = 'handleResponse';
-      jsonp(url, param, (err, res) => {
-        if(!err) {
-          this.list = res;
-          console.log(res);
-        } else {
-          console.log(err);
-        }
-      });
-    }
-  },
-  mounted() {
-    this.getMovieList('in_theaters');
+    
   }
-  
-}
 </script>
 
 <style scoped>
