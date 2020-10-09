@@ -43,7 +43,9 @@ export default {
 </script>
 
 <style scoped>
-
+  h3 {
+    text-align: center;
+  }
   ul {
     text-align: center;
   }
@@ -58,4 +60,14 @@ export default {
     width: 80%;
     height: 80%;
   }
+
+@media only screen and (max-device-width: 480px) {
+    li {
+      width: 50%;
+    }
+
+
+}
+
 </style>
+

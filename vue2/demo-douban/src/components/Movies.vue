@@ -1,8 +1,8 @@
 <template>
   <div>
       <ul>
-        <li><button @click="getMovieList('in_theaters')">Now in Theaters</button></li>
-        <li><button @click="getMovieList('coming_soon')">Coming Soon</button></li>
+        <li><button @click="getMovieList('in_theaters')">正在上映</button></li>
+        <li><button @click="getMovieList('coming_soon')">即将上映</button></li>
         <li><button @click="getMovieList('top250')">Top 250</button></li>
       </ul>
       <app-movie-list :list="list"></app-movie-list>
@@ -43,8 +43,20 @@
 </script>
 
 <style scoped>
+  ul {
+    padding: 0;
+    text-align: center;
+  }
   li {
     display:inline;
     list-style: none;
+  }
+
+  button {
+    background-color: lightslategray;
+    border: none;
+    border-radius: .5em;
+    color: white;
+    padding: 5px 10px;
   }
 </style>

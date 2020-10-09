@@ -1,0 +1,21 @@
+.row {
+    width: 100%;
+}
+.container {
+    width: 30%;
+    display: inline-block;
+}
+
+.background {
+    width: 90%;
+    height: 20px;
+    background-color: lightgrey;
+}
+
+.healthbar {
+    width: 80%;
+    height: 20px;
+    background-color: green;
+    color: white;
+    transition: all .2s;
+}

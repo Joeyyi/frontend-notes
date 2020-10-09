@@ -1,0 +1,58 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <title>Document</title>
+</head>
+<body>
+
+    <div id="app">
+        <button @click='counter1++'>1+</button>
+        <button @click='counter1--'>1-</button>
+        <button v-on:click='counter2++'>2+</button>
+        <button v-on:click='counter2--'>2-</button>
+        <p>Counter:{{ counter1 }} | {{ counter2}}</p> 
+        <p>result:{{ result() }} | {{ output}}</p> 
+        <p>called:{{ m }}  | {{ c}}</p> 
+    </div>
+
+    <script>
+            var vm = new Vue({
+                el:"#app",
+                data: {
+                    counter1: 0,
+                    counter2: 0,
+                    m: 0,
+                    c: 0
+                },
+                computed: {
+                    output: function() {
+                        console.log('computed');
+                        this.c++;
+                        return this.counter2 > 3 ? 'greater' : 'smaller';
+                    }
+                },
+                watch: {
+                    counter1: function(value) {
+                        console.log(value);
+                        var vm = this; //
+                        setTimeout(function() {
+                            vm.counter1 = 0;
+                        },2000);
+                    }
+                },
+                methods: {
+                    result: function(){
+                        this.m++;
+                        console.log('method');
+                        return this.counter1 > 3 ? 'greater' : 'smaller';
+                    }
+                }
+            })
+        </script>
+
+</body>
+</html>
